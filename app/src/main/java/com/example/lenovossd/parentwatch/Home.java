@@ -26,7 +26,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,8 +67,11 @@ import dmax.dialog.SpotsDialog;
 import es.dmoral.toasty.Toasty;
 import io.paperdb.Paper;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
+
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        AdapterView.OnItemSelectedListener{
 
         RecyclerView mRecyclerView;
         FirebaseDatabase mFirebaseDatabase;
@@ -73,6 +81,8 @@ public class Home extends AppCompatActivity
     FirebaseStorage storage;
     TextView txtRiderName,txtStars;
     CircleImageView imageAvatar;
+    RadioGroup radioGroup;
+    RadioButton radioButton;
 
 
     @Override
@@ -94,6 +104,7 @@ public class Home extends AppCompatActivity
         mRecyclerView = (RecyclerView)findViewById( R.id.recyclerView );
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager( new LinearLayoutManager( this ) );
+
 
 
 
@@ -198,6 +209,10 @@ public class Home extends AppCompatActivity
         {
             SignOut();
         }
+        if (id == R.id.nav_add_childern)
+        {
+           addChildern();
+        }
         else if (id == R.id.nav_UpdateInformation)
         {
             showUpdateInforamtionDialog();
@@ -205,6 +220,77 @@ public class Home extends AppCompatActivity
         return true;
 
     }
+
+    private void addChildern() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder( Home.this );
+        dialog.setTitle( "Add Childern" );
+        dialog.setMessage( "Please fill all the Inforamtion" );
+        LayoutInflater inflater = LayoutInflater.from( this );
+
+        final View add_childern = inflater.inflate( R.layout.add_child,null );
+
+        final MaterialEditText FName = add_childern.findViewById( R.id.first_name );
+        final MaterialEditText LName = add_childern.findViewById( R.id.last_Name );
+        final MaterialEditText Age = add_childern.findViewById( R.id.age );
+        Spinner spinner = add_childern.findViewById( R.id.spinnerbloodgroup );
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource( Home.this,R.array.bloodgroup,android.R.layout.simple_spinner_item );
+        adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+        spinner.setAdapter( adapter );
+        spinner.setOnItemSelectedListener( this );
+
+        radioGroup = add_childern.findViewById( R.id.radiosexgroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId is the RadioButton selected
+                int radioid = radioGroup.getCheckedRadioButtonId();
+                radioButton = add_childern.findViewById( radioid );
+
+
+            }
+        });
+        dialog.setView( add_childern );
+
+        dialog.setPositiveButton( "Add childern", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+                String name = FName.getText().toString();
+                String phone = LName.getText().toString();
+                String age = Age.getText().toString();
+                int radioid = radioGroup.getCheckedRadioButtonId();
+                radioButton = add_childern.findViewById( radioid );
+                Toast.makeText( Home.this,"selected radio Button : "+radioButton.getText(),Toast.LENGTH_LONG).show();
+
+
+
+            }
+        } );
+        dialog.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface  dialogInterface, int which) {
+                dialogInterface.dismiss();
+            }
+        } );
+        dialog.show();
+
+
+
+
+
+
+
+
+    }
+    public void checkButton(View v ){
+        int radioid = radioGroup.getCheckedRadioButtonId();
+        radioButton = findViewById( radioid );
+       // Toast.makeText( this,"selected radio Button : "+ radioButton.getText(),Toast.LENGTH_LONG).show();
+
+    }
+
+
 
     private void showUpdateInforamtionDialog() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(Home.this );
@@ -361,5 +447,16 @@ public class Home extends AppCompatActivity
         Intent intent = new Intent( Home.this,MainActivity.class );
         startActivity( intent );
         finish();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView <?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition( position ).toString();
+        Toast.makeText( parent.getContext(),text,Toast.LENGTH_LONG ).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView <?> parent) {
+
     }
 }

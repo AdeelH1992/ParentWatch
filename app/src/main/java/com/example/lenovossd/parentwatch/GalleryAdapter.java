@@ -23,9 +23,5 @@ public class GalleryAdapter extends RecyclerView.ViewHolder
 
         Picasso.get().load( image ).into( imageView );
 
-
-
-
-
     }
 }
